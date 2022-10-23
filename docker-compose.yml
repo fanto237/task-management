@@ -25,20 +25,20 @@ services:
     depends_on:
       - php
 
-  # container for mysql
-  database:
-    container_name: database
-    image: mysql
-    restart: always
-    environment:
-      - MYSQL_ROOT_PASSWORD=fanto237
-      - MYSQL_USER=fanto
-      - MYSQL_PASSWORD=fantobase
-      - MYSQL_DATABASE=Testdb
-    volumes:
-      - ./database:/var/lib/mysql
-    networks:
-      - code-network
+  # # container for mysql
+  # database:
+  #   container_name: database
+  #   image: mysql
+  #   restart: always
+  #   environment:
+  #     - MYSQL_ROOT_PASSWORD=fanto237
+  #     - MYSQL_USER=fanto
+  #     - MYSQL_PASSWORD=fantobase
+  #     - MYSQL_DATABASE=Testdb
+  #   volumes:
+  #     - ./database:/var/lib/mysql
+  #   networks:
+  #     - code-network
 
 networks:
   code-network:
