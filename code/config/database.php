@@ -1,5 +1,7 @@
 <?php
 
+use function PHPSTORM_META\type;
+
 define('DB_HOST', 'database');
 define('DB_USER', 'root');
 define('DB_PASS', 'fanto237');
@@ -13,4 +15,12 @@ if ($conn->connect_error) {
     die('Connection failed: ' . $conn->connect_error);
 }
 
-echo 'Connected successfully';
+// connecting to redis database
+//Connecting to Redis server on localhost 
+$redis = new Redis();
+$redis->connect('redis');
+echo "Connection to server sucessfully";
+//check whether server is running or not 
+if ($redis->ping()) {
+    echo "PONG";
+}
