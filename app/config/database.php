@@ -18,4 +18,3 @@ if ($conn->connect_error) {
 //Connecting to Redis server on localhost 
 $redis = new Redis();
 $redis->connect('redis');
-echo "Connection to server sucessfully";
