@@ -4,6 +4,11 @@
 <div class="container d-flex justify-content-center align-items-center" style="min-height: 80vh;">
     <form id="register-form" class="border shadow p-3 rounded" style="width: 400px;">
         <h3 class="text-center">Registrieren</h3>
+        <?php
+        if (isset($_GET['error'])) {
+            echo '<div class="alert alert-danger text-center" role="alert">' . $_GET['error'] . '</div>';
+        }
+        ?>
         <div class="mb-3">
             <label for="username" class="form-label">Benutzername</label>
             <input type="text" class="form-control" id="username" name="username">
