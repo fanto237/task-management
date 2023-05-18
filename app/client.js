@@ -7,9 +7,9 @@ let activity;
 (function () {
     function init() {
         //  initialization 
-        console.log("i am the initiator bro !")
+        // console.log("i am the initiator bro !")
         if (document.getElementById('login-form')) {
-            console.log("login form got found")
+            // console.log("login form got found")
             document.getElementById('login-form').addEventListener('submit', login);
         }
         if (document.getElementById('register-form')) {
@@ -31,18 +31,20 @@ function register(e) {
         return;
     }
 
-    console.log(username + " " + password)
     xhr.open('POST', 'server.php', true);
     xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
 
     xhr.onload = function () {
-        console.log(this.responseText);
+        if (this.status === 200) {
+            let redirectTo = this.responseText
+            console.log(redirectTo);
+            window.location.href = redirectTo;
+        }
     }
 
     // Encode the data as URL-encoded format
     var data = 'username=' + encodeURIComponent(username) + '&password=' + encodeURIComponent(password);
     xhr.send(data);
-    window.location.href = "login.php";
 }
 
 function login(e) {
@@ -61,7 +63,11 @@ function login(e) {
     xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
 
     xhr.onload = function () {
-        console.log(this.responseText);
+        if (this.status === 200) {
+            let redirectTo = this.responseText === 'home.php' ? "home.php" : "login.php?error=Benutzername oder Passwort falsch";
+            console.log(this.responseText)
+            window.location.href = redirectTo;
+        }
     }
 
     // Encode the data as URL-encoded format
@@ -72,14 +78,6 @@ function login(e) {
 function handleErrorMessage() {
     let name = document.getElementById('username-feedback');
     let pass = document.getElementById('password-feedback');
-    if (username === "")
-        name.innerHTML = "Ein Name is notwendig";
-    else
-        name.innerHTML = ""
-
-
-    if (password === "")
-        pass.innerHTML = "Ein Passwort ist notwendig";
-    else
-        pass.innerHTML = "";
+    name.innerHTML = username === "" ? "Ein Name is notwendig" : "";
+    pass.innerHTML = password === "" ? "Ein Passwort ist notwendig" : "";
 }
