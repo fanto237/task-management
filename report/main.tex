@@ -1,0 +1,36 @@
+%Dokumentklasse
+\documentclass[a4paper,12pt]{scrreprt}
+
+% Loading all packages and configuration present in the preamble file
+\usepackage{preamble}
+
+% ======= BEGIN DES DOKUMENTS =======
+\begin{document}
+
+\selectlanguage{ngerman}
+
+% % Titelseite  
+\input{titel.tex}
+
+
+% % Inhaltsverzeichnis  
+\tableofcontents
+
+% % Verzeichnis aller Bilder 
+\listoffigures
+
+% % Verzeichnis aller Tabellen 
+\listoftables
+
+
+% % Layout des Dokuments 
+\input{layout.tex}
+
+%Literaturverzeichnis 
+\bibliographystyle{unsrtdin}
+\bibliography{reference}
+
+
+% ======= ENDE DES DOKUMENTS =======
+
+\end{document}

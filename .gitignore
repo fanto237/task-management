@@ -2,3 +2,18 @@ database/
 .env
 tmp/
 .idea/
+
+# Latex stuffs
+*.out
+*.aux
+*.fls
+*.log
+*.gz
+*.toc
+*.fdb_latexmk
+*.lof
+*.bbl
+*.blg
+*.lot
+*.xdv
+*.pdf
