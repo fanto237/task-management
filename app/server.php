@@ -31,11 +31,11 @@ function addNewUser($username, $password, $conn)
     // add a new use into the user table
     $sql = "INSERT INTO user (name, password) VALUES ('$username', '$pass')";
     $result = mysqli_query($conn, $sql);
-    echo 'login.php';
+    echo 'index.php';
 }
 
 // method use for handling a loggin session
-function loginSessin($username, $password, $conn)
+function loginSession($username, $password, $conn)
 {
     // check if the login data are correct
     // validate form data
@@ -50,7 +50,8 @@ function loginSessin($username, $password, $conn)
         $row = mysqli_fetch_assoc($result);
         $_SESSION['username'] = $row['name'];
         $_SESSION['password'] = $row['password'];
-        echo "home.php";
+        $_SESSION['id'] = $row['id'];
+        echo "dashboard.php";
     }
 }
 

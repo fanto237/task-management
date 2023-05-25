@@ -13,7 +13,7 @@ let activity;
             document.getElementById('login-form').addEventListener('submit', login);
         }
         if (document.getElementById('register-form')) {
-            console.log("regiter form got found")
+            // console.log("regiter form got found")
             document.getElementById('register-form').addEventListener('submit', register);
         }
     }
@@ -64,7 +64,7 @@ function login(e) {
 
     xhr.onload = function () {
         if (this.status === 200) {
-            let redirectTo = this.responseText === 'home.php' ? "home.php" : "login.php?error=Benutzername oder Passwort falsch";
+            let redirectTo = this.responseText === 'dashboard.php' ? "dashboard.php" : "index.php?error=Benutzername oder Passwort falsch";
             console.log(this.responseText)
             window.location.href = redirectTo;
         }
