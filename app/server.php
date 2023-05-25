@@ -4,13 +4,22 @@ include 'config/database.php';
 
 $username = $_POST['username'];
 $password = $_POST['password'];
-
+$title = $_POST['title'];
+$description = $_POST['description'];
+$assignTo = $_POST['assignTo'];
+$priority = $_POST['priority'];
+$start =  $_POST['start'];
+$end =  $_POST['end'];
 
 
 if (isset($_POST['status'])) {
-    loginSessin($username, $password, $conn);
+    loginSession($username, $password, $conn);
 } else {
     addNewUser($username, $password, $conn);
+}
+
+if (isset($_POST['title'])) {
+    addNewTask($title, $description, $assignTo, $priority, $start, $end, $conn);
 }
 
 // method used to register a new user
@@ -62,3 +71,10 @@ function test_input($data)
     $data = htmlspecialchars($data);
     return $data;
 }
+
+function addNewTask($title, $description, $assignTo, $priority, $start, $end, $conn)
+{
+    $sql = "INSERT INTO task (title, description, assignTo, priority, start, end) VALUES ('$title', '$description', '$assignTo', '$priority', '$start', '$end')";
+    $result = mysqli_query($conn, $sql);
+    echo 'dashboard.php';
+};
