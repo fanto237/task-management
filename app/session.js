@@ -9,6 +9,13 @@
         if (document.getElementById('edit-task')) {
             document.getElementById('edit-task').addEventListener('click', editTask);
         }
+        if (document.getElementsByName("done-boxes").length > 0) {
+            console.log('done-boxes');
+            checkboxes = document.getElementsByName("done-boxes");
+            checkboxes.forEach(element => {
+                element.addEventListener('change', doneTask);
+            });
+        }
     }
     // Call the init function
     init();
@@ -92,6 +99,30 @@ function editTask(e) {
         '&end=' + encodeURIComponent(end) +
         '&id=' + encodeURIComponent(id) +
         '&action=edit';
+
+    // send the request
+    xhr.send(data);
+}
+
+function doneTask(e) {
+
+    let xhr = new XMLHttpRequest();
+    let id = e.target.getAttribute('data-id');
+    xhr.open('POST', 'server.php', true);
+    xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+
+    xhr.onload = function () {
+        if (this.status === 200) {
+            console.log(this.responseText);
+            if (this.responseText === 'success') {
+                window.location.href = 'dashboard.php';
+            }
+        }
+    }
+
+    // Encode the data as URL-encoded format
+    var data = 'id=' + encodeURIComponent(id) +
+        '&action=delete';
 
     // send the request
     xhr.send(data);
