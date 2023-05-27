@@ -48,49 +48,61 @@ if (isset($_SESSION['username']) && isset($_SESSION['id'])) { ?>
                             <th scope="col">Fertig</th>
                             <th scope="col">Title</th>
                             <th scope="col">Beschreibung</th>
-                            <th scope="col">Datum</th>
+                            <th scope="col">Startdatum</th>
+                            <th scope="col">Enddatum</th>
                             <th scope="col">Priorität</th>
-                            <th scope="col">Zuständig</th>
+                            <th scope="col">Zustängiger</th>
+                            <th scope="col">Ersteller</th>
                             <th scope="col">Bearbeiten</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <tr>
-                            <th scope="row">
-                                <input class="form-check-input center" type="checkbox" value="" id="flexCheckDefault">
-                            </th>
-                            <td>Infrastruktur abgeben</td>
-                            <td>Ich muss schnell wie möglich mein Infrastruktur Abgage machen</td>
-                            <td>28.05.2023</td>
-                            <td>High</td>
-                            <td>Lucien</td>
-                            <td>
-                                <button class="btn btn-success center">Edit</button>
-                            </td>
-                        </tr>
-                        <tr>
-                            <th scope="row">2</th>
-                            <td>Jacob</td>
-                            <td>Thornton</td>
-                            <td>@fat</td>
-                        </tr>
-                        <tr>
-                            <th scope="row">3</th>
-                            <td>Larry</td>
-                            <td>the Bird</td>
-                            <td>@twitter</td>
-                        </tr>
+
+                        <!-- get all tasks from the database and display them  in the table -->
+
+                        <?php
+                        include 'config/database.php';
+                        $username = $_SESSION['username'];
+                        $sql = "SELECT * FROM tasks WHERE assignedTo = '$username' OR createBy = '$username' AND status = 'begin' ";
+                        $result = mysqli_query($conn, $sql);
+                        while ($row = mysqli_fetch_assoc($result)) {
+                            $style = '';
+                            switch ($row['priority']) {
+                                case 'Hoch':
+                                    $style = 'style="color: red;"';
+                                    break;
+                                case 'Normal':
+                                    $style = 'style="color: green;"';
+                                    break;
+                                case 'Niedrig':
+                                    $style = 'style="color: yellow;"';
+                                    break;
+                            }
+                            echo '
+                                <tr>
+                        <th scope="row">
+                            <input class="form-check-input center" type="checkbox" id="' . $row['id'] . '">
+                        </th>
+                        <td>' . $row['title'] . '</td>
+                        <td>' . $row['description'] . '</td>
+                        <td>' . date('d.m.Y', strtotime($row['startdate'])) . '</td>
+                        <td>' . date('d.m.Y', strtotime($row['enddate'])) . '</td>
+                        <td ' . $style . '>' . $row['priority'] . '</td>
+                        <td>' . $row['assignedTo'] . '</td>
+                        <td>' . $row['createBy'] . '</td>
+                        <td>
+                            <a href="edit_task.php?id=' . $row['id'] . '" class="btn btn-success center">Edit</a>
+                        </td>
+                    </tr>
+                                ';
+                        }
+                        ?>
                     </tbody>
                 </table>
             </div>
 
             <!-- button redirecting to the new_task page -->
             <a href="new_task.php" class="mt-5 btn btn-primary">Add Task</a>
-
-            <!-- get all tasks from the database and display them  in the table -->
-
-
-
 
             <?php include 'components/footer.php'; ?>
 
