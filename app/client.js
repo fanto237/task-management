@@ -43,7 +43,9 @@ function register(e) {
     }
 
     // Encode the data as URL-encoded format
-    var data = 'username=' + encodeURIComponent(username) + '&password=' + encodeURIComponent(password);
+    var data = 'username=' + encodeURIComponent(username) +
+        '&password=' + encodeURIComponent(password) +
+        '&action=register';
     xhr.send(data);
 }
 
@@ -71,7 +73,10 @@ function login(e) {
     }
 
     // Encode the data as URL-encoded format
-    var data = 'username=' + encodeURIComponent(username) + '&password=' + encodeURIComponent(password) + '&status=' + encodeURIComponent(activity);
+    var data = 'username=' + encodeURIComponent(username) +
+        '&password=' + encodeURIComponent(password) +
+        '&action=login';
+
     xhr.send(data);
 }
 
