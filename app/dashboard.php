@@ -63,7 +63,7 @@ if (isset($_SESSION['username']) && isset($_SESSION['id'])) { ?>
                         <?php
                         include 'config/database.php';
                         $username = $_SESSION['username'];
-                        $sql = "SELECT * FROM tasks WHERE assignedTo = '$username' OR createBy = '$username' AND status = 'begin' ";
+                        $sql = "SELECT * FROM tasks WHERE status = 'begin' AND (assignedTo = '$username' OR createBy = '$username')  ";
                         $result = mysqli_query($conn, $sql);
                         while ($row = mysqli_fetch_assoc($result)) {
                             $style = '';
@@ -81,7 +81,7 @@ if (isset($_SESSION['username']) && isset($_SESSION['id'])) { ?>
                             echo '
                                 <tr>
                         <th scope="row">
-                            <input class="form-check-input center" type="checkbox" id="' . $row['id'] . '">
+                            <input class="form-check-input center" type="checkbox" name="done-boxes" data-id="' . $row['id'] . '">
                         </th>
                         <td>' . $row['title'] . '</td>
                         <td>' . $row['description'] . '</td>
@@ -101,8 +101,12 @@ if (isset($_SESSION['username']) && isset($_SESSION['id'])) { ?>
                 </table>
             </div>
 
+
+
             <!-- button redirecting to the new_task page -->
             <a href="new_task.php" class="mt-5 btn btn-primary">Add Task</a>
+
+            <script src="session.js"></script>
 
             <?php include 'components/footer.php'; ?>
 
