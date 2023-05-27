@@ -26,6 +26,9 @@ switch ($action) {
     case 'create':
         addNewTask($title, $description, $assignTo, $priority, $start, $end, $conn);
         break;
+    case 'delete':
+        deleteTask($conn);
+        break;
 }
 
 
@@ -93,6 +96,16 @@ function editTask($title, $description, $assignTo, $priority, $start, $end, $con
 {
     $id = $_POST['id'];
     $sql = "UPDATE tasks SET title = '$title', description = '$description', assignedTo = '$assignTo', startdate = '$start', enddate = '$end', priority = '$priority' WHERE id = '$id'";
+    $result = mysqli_query($conn, $sql);
+    if ($result)
+        echo 'success';
+}
+
+
+function deleteTask($conn)
+{
+    $id = $_POST['id'];
+    $sql = "UPDATE tasks SET status = 'done' WHERE id = '$id'";
     $result = mysqli_query($conn, $sql);
     if ($result)
         echo 'success';
