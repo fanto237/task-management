@@ -1,29 +1,44 @@
-document.getElementById('save-task').addEventListener('click', saveTask);
+
+// implementing an immediately invoked function expression 
+(function () {
+    function init() {
+        //  initialization 
+        if (document.getElementById('save-task')) {
+            document.getElementById('save-task').addEventListener('click', saveTask);
+        }
+        if (document.getElementById('edit-task')) {
+            document.getElementById('edit-task').addEventListener('click', editTask);
+        }
+    }
+    // Call the init function
+    init();
+})();
 
 function saveTask(e) {
+    let xhr = new XMLHttpRequest();
+    document.get
     let title = document.getElementById('add-title').value;
     let description = document.getElementById('add-desc').value;
     let assignTo = document.getElementById('add-for').value;
     let priority = document.getElementById('add-priority').value;
     let start = document.getElementById('add-start').value;
     let end = document.getElementById('add-end').value;
-    console.log('the title is:' + title);
-    console.log('the description is:' + description);
-    console.log('the assignTo is:' + assignTo);
-    console.log('the priority is:' + priority);
-    console.log('the start is:' + start);
-    console.log('the end is:' + end);
 
     xhr.open('POST', 'server.php', true);
     xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
 
-    // xhr.onload = function () {
-    //     if (this.status === 200) {
-    //         let redirectTo = this.responseText
-    //         console.log(redirectTo);
-    //         window.location.href = redirectTo;
-    //     }
-    // }
+    xhr.onload = function () {
+        if (this.status === 200) {
+            console.log(this.responseText);
+            if (this.responseText === 'success') {
+                alert('Task wurde erfolgreich erstellt');
+                window.location.href = 'dashboard.php';
+            } else {
+                alert('Task konnte nicht erstellt werden, bitte überprüfen Sie Ihre Eingaben');
+            }
+        }
+    }
+
 
     // Encode the data as URL-encoded format
     var data = 'title=' + encodeURIComponent(title) +
@@ -31,10 +46,53 @@ function saveTask(e) {
         '&assignTo=' + encodeURIComponent(assignTo) +
         '&priority=' + encodeURIComponent(priority) +
         '&start=' + encodeURIComponent(start) +
-        '&end=' + encodeURIComponent(end);
+        '&end=' + encodeURIComponent(end) +
+        '&action=create';
 
 
     // send the request
     xhr.send(data);
+}
 
+function editTask(e) {
+    let xhr = new XMLHttpRequest();
+
+    let input = document.getElementsByName('title-input');
+    let id = input[0].getAttribute('id');
+    let title = document.getElementsByName('title-input')[0].value;
+    let description = document.getElementById('add-desc').value;
+    let assignTo = document.getElementById('add-for').value;
+    let priority = document.getElementById('add-priority').value;
+    let start = document.getElementById('add-start').value;
+    let end = document.getElementById('add-end').value;
+
+
+    xhr.open('POST', 'server.php', true);
+    xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+
+    xhr.onload = function () {
+        if (this.status === 200) {
+            console.log(this.responseText);
+            if (this.responseText === 'success') {
+                alert('Task wurde erfolgreich bearbeitet');
+                window.location.href = 'dashboard.php';
+            } else {
+                alert('Task konnte nicht bearbeitet werden, bitte überprüfen Sie Ihre Eingaben');
+            }
+        }
+    }
+
+
+    // Encode the data as URL-encoded format
+    var data = 'title=' + encodeURIComponent(title) +
+        '&description=' + encodeURIComponent(description) +
+        '&assignTo=' + encodeURIComponent(assignTo) +
+        '&priority=' + encodeURIComponent(priority) +
+        '&start=' + encodeURIComponent(start) +
+        '&end=' + encodeURIComponent(end) +
+        '&id=' + encodeURIComponent(id) +
+        '&action=edit';
+
+    // send the request
+    xhr.send(data);
 }
