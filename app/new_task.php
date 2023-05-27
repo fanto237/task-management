@@ -46,19 +46,25 @@ if (isset($_SESSION['username']) && isset($_SESSION['id'])) { ?>
         <div style="width: 50%;">
             <div class="mb-3">
                 <label for="task-name" class="form-label">Titel :</label>
-                <input type="text" class="form-control" id="add-title" placeholder="Titel eingeben">
+                <input type="text" class="form-control" id="add-title" placeholder="Titel eingeben" require>
             </div>
             <div class="mb-3">
                 <label for="task-desc" class="form-label">Beschreibung :</label>
-                <textarea class="form-control" id="add-desc" rows="3" placeholder="Beschreibung eingeben"></textarea>
+                <textarea class="form-control" id="add-desc" rows="3" placeholder="Beschreibung eingeben"
+                    require></textarea>
             </div>
             <div class="mb-3">
                 <label for="task-for" class="form-label">Zuweisen an:</label>
                 <select class="form-select" aria-label="Default select example" id="add-for">
-                    <option selected></option>
-                    <option>Siani</option>
-                    <option>Lucien</option>
-                    <option>Leroy</option>
+                    <option selected> </option>
+                    <?php
+                        include 'config/database.php';
+                        $sql = "SELECT name FROM users";
+                        $result = mysqli_query($conn, $sql);
+                        while ($row = mysqli_fetch_assoc($result)) {
+                            echo "<option>" . $row['name'] . "</option>";
+                        }
+                        ?>
                 </select>
             </div>
             <div class="mb-3">
@@ -72,15 +78,15 @@ if (isset($_SESSION['username']) && isset($_SESSION['id'])) { ?>
             </div>
             <div class="mb-3">
                 <label for="task-name" class="form-label">Startdatum :</label>
-                <input type="date" class="form-control" id="add-start">
+                <input type="date" class="form-control" id="add-start" require>
             </div>
             <div class="mb-3">
                 <label for="task-name" class="form-label">Enddatum :</label>
-                <input type="date" class="form-control" id="add-end">
+                <input type="date" class="form-control" id="add-end" require>
             </div>
         </div>
         <div>
-            <button class="btn btn-primary m-3 ml-3" id="save-task">Spreichern</button>
+            <button class="btn btn-primary m-3 ml-3" id="save-task">Speichern</button>
             <a href="dashboard.php" class="btn btn-danger m-3 mr-3">Abbrechen</a>
         </div>
         <!-- link to redirect to the dashboard page after saving the new task in the database -->
