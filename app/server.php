@@ -11,22 +11,30 @@ $priority = $_POST['priority'];
 $start =  $_POST['start'];
 $end =  $_POST['end'];
 
+$action = $_POST['action'];
 
-if (isset($_POST['status'])) {
-    loginSession($username, $password, $conn);
-} else {
-    addNewUser($username, $password, $conn);
+switch ($action) {
+    case 'login':
+        loginSession($username, $password, $conn);
+        break;
+    case 'register':
+        addNewUser($username, $password, $conn);
+        break;
+    case 'edit':
+        editTask($title, $description, $assignTo, $priority, $start, $end, $conn);
+        break;
+    case 'create':
+        addNewTask($title, $description, $assignTo, $priority, $start, $end, $conn);
+        break;
 }
 
-if (isset($_POST['title'])) {
-    addNewTask($title, $description, $assignTo, $priority, $start, $end, $conn);
-}
+
 
 // method used to register a new user
 function addNewUser($username, $password, $conn)
 {
     // check if the username already exists
-    $sql = "SELECT * FROM user WHERE name = '$username'";
+    $sql = "SELECT * FROM users WHERE name = '$username'";
     $result = mysqli_query($conn, $sql);
 
     if (mysqli_num_rows($result) > 0) {
@@ -38,7 +46,7 @@ function addNewUser($username, $password, $conn)
     $pass = md5($password);
 
     // add a new use into the user table
-    $sql = "INSERT INTO user (name, password) VALUES ('$username', '$pass')";
+    $sql = "INSERT INTO users (name, password) VALUES ('$username', '$pass')";
     $result = mysqli_query($conn, $sql);
     echo 'index.php';
 }
@@ -51,7 +59,7 @@ function loginSession($username, $password, $conn)
     $name = test_input($username);
     $pass = md5(test_input($password));
 
-    $sql = "SELECT * FROM user WHERE name = '$name' AND password = '$pass'";
+    $sql = "SELECT * FROM users WHERE name = '$name' AND password = '$pass'";
 
     $result = mysqli_query($conn, $sql);
 
@@ -74,7 +82,18 @@ function test_input($data)
 
 function addNewTask($title, $description, $assignTo, $priority, $start, $end, $conn)
 {
-    $sql = "INSERT INTO task (title, description, assignTo, priority, start, end) VALUES ('$title', '$description', '$assignTo', '$priority', '$start', '$end')";
+    $createBy = $_SESSION['username'];
+    $sql = "INSERT INTO tasks (title, description, assignedTo, startdate, enddate, priority, createBy, status) VALUES ('$title', '$description', '$assignTo', '$start', '$end', '$priority', '$createBy', 'begin')";
     $result = mysqli_query($conn, $sql);
-    echo 'dashboard.php';
+    if ($result)
+        echo 'success';
 };
+
+function editTask($title, $description, $assignTo, $priority, $start, $end, $conn)
+{
+    $id = $_POST['id'];
+    $sql = "UPDATE tasks SET title = '$title', description = '$description', assignedTo = '$assignTo', startdate = '$start', enddate = '$end', priority = '$priority' WHERE id = '$id'";
+    $result = mysqli_query($conn, $sql);
+    if ($result)
+        echo 'success';
+}
