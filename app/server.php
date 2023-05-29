@@ -2,6 +2,7 @@
 session_start();
 include 'config/database.php';
 
+
 $username = $_POST['username'];
 $password = $_POST['password'];
 $title = $_POST['title'];
@@ -21,10 +22,10 @@ switch ($action) {
         addNewUser($username, $password, $conn);
         break;
     case 'edit':
-        editTask($title, $description, $assignTo, $priority, $start, $end, $conn);
+        editTask($title, $description, $assignTo, $priority, $start, $end, $conn,);
         break;
     case 'create':
-        addNewTask($title, $description, $assignTo, $priority, $start, $end, $conn);
+        addNewTask($title, $description, $assignTo, $priority, $start, $end, $conn,);
         break;
     case 'delete':
         deleteTask($conn);
@@ -36,6 +37,8 @@ switch ($action) {
 // method used to register a new user
 function addNewUser($username, $password, $conn)
 {
+
+
     // check if the username already exists
     $sql = "SELECT * FROM users WHERE name = '$username'";
     $result = mysqli_query($conn, $sql);
@@ -44,6 +47,9 @@ function addNewUser($username, $password, $conn)
         echo 'register.php?error=Benutzername existiert bereits';
         exit();
     }
+
+    global $redis;
+    $redis->set('isUsersChanged', 'true');
 
     // encrypt password
     $pass = md5($password);
@@ -71,6 +77,8 @@ function loginSession($username, $password, $conn)
         $_SESSION['username'] = $row['name'];
         $_SESSION['password'] = $row['password'];
         $_SESSION['id'] = $row['id'];
+        global $redis;
+        $redis->set('isTasksChanged', 'true');
         echo "dashboard.php";
     }
 }
@@ -88,6 +96,8 @@ function addNewTask($title, $description, $assignTo, $priority, $start, $end, $c
     $createBy = $_SESSION['username'];
     $sql = "INSERT INTO tasks (title, description, assignedTo, startdate, enddate, priority, createBy, status) VALUES ('$title', '$description', '$assignTo', '$start', '$end', '$priority', '$createBy', 'begin')";
     $result = mysqli_query($conn, $sql);
+    global $redis;
+    $redis->set('isTasksChanged', 'true');
     if ($result)
         echo 'success';
 };
@@ -97,6 +107,8 @@ function editTask($title, $description, $assignTo, $priority, $start, $end, $con
     $id = $_POST['id'];
     $sql = "UPDATE tasks SET title = '$title', description = '$description', assignedTo = '$assignTo', startdate = '$start', enddate = '$end', priority = '$priority' WHERE id = '$id'";
     $result = mysqli_query($conn, $sql);
+    global $redis;
+    $redis->set('isTasksChanged', 'true');
     if ($result)
         echo 'success';
 }
@@ -107,6 +119,8 @@ function deleteTask($conn)
     $id = $_POST['id'];
     $sql = "UPDATE tasks SET status = 'done' WHERE id = '$id'";
     $result = mysqli_query($conn, $sql);
+    global $redis;
+    $redis->set('isTasksChanged', 'true');
     if ($result)
         echo 'success';
 }
