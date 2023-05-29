@@ -17,3 +17,4 @@ tmp/
 *.lot
 *.xdv
 *.pdf
+app/redis-data/dump.rdb
