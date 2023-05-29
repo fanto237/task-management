@@ -48,8 +48,8 @@ services:
     restart: unless-stopped
     networks:
       - code-network
-    # volumes:
-    #   - ../databases/infrastruktur/redis:containerPath:ro
+    volumes:
+      - ./app/redis-data:/data
 
   adminer:
     image: adminer
