@@ -15,6 +15,5 @@ if ($conn->connect_error) {
 }
 
 //connecting to redis database
-//Connecting to Redis server on localhost 
 $redis = new Redis();
 $redis->connect('redis');
