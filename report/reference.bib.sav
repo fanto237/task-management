@@ -29,15 +29,4 @@
   url          = {https://nginx.org/en/docs/http/ngx_http_fastcgi_module.html}
 }
 
-@Book{riordan2008head,
-  author    = {Riordan, R.},
-  publisher = {O'Reilly Media},
-  title     = {{Head First Ajax}},
-  year      = {2008},
-  isbn      = {9780596515782},
-  series    = {Head First},
-  lccn      = {2009277290},
-  url       = {https://books.google.de/books?id=sMMX-RWBbDkC},
-}
-
 @Comment{jabref-meta: databaseType:bibtex;}

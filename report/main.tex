@@ -1,5 +1,5 @@
 %Dokumentklasse
-\documentclass[a4paper,12pt]{scrreprt}
+\documentclass[a4paper,12pt]{scrreport}
 
 % Loading all packages and configuration present in the preamble file
 \usepackage{preamble}
@@ -16,15 +16,19 @@
 % % Inhaltsverzeichnis  
 \tableofcontents
 
-% % Verzeichnis aller Bilder 
-\listoffigures
-
-% % Verzeichnis aller Tabellen 
-\listoftables
 
 
 % % Layout des Dokuments 
 \input{layout.tex}
+
+% % Verzeichnis aller Bilder 
+% \listoffigures
+
+% % % Verzeichnis aller Tabellen 
+% \listoftables
+
+% % Verzeichnis aller Quellcode 
+\lstlistoflistings
 
 %Literaturverzeichnis 
 \bibliographystyle{unsrtdin}

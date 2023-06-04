@@ -1,0 +1,251 @@
+\section{Beschreibung der Anwendung}
+Im Rahmen des Moduls "Infrastruktur" wurde eine Aufgabenmanagement-Anwendung namens TaskMaster entwickelt. Die Applikation wurde entwickelt, um Benutzern Funktionen zur Erstellung, Bearbeitung und Verfolgung von Aufgaben bereitzustellen. Benutzer hatten die Möglichkeit, neue Aufgaben anzulegen und diesen Aufgaben Prioritäten zuzuweisen. Des Weiteren konnten sie Fristen setzen und den Fortschritt der Aufgaben verfolgen. Ein zusätzliches Feature der Anwendung ermöglichte es Benutzern, Aufgaben anderen Benutzern zuzuweisen, um die Zusammenarbeit und den Informationsfluss zu erleichtern.
+
+\section{Technische Beschreibung des Konzeptes}
+Die Anwendung ist auf Basis eines LEMP Stack mit Javascript entwickelt worden. Dabei wurde auch Redis und Ajax angewendet.
+\subsection{Benutzeranmeldung und Registrierung}
+Wenn ein Benutzer die Hauptseite aufruft, hat er die Möglichkeit, sich anzumelden. Wenn der Benutzer jedoch noch kein Konto hat, kann er sich registrieren. Nachdem er seine Daten eingegeben und abgeschickt hat, wird ein Ajax-Request an die Datei \emph{server.php} gesendet. In diesem Request werden der Benutzername und das Passwort als Parameter übergeben.
+
+\begin{lstlisting}[language=Javascript, caption=Ajax Request für die Registrierung eines neues Benutzers]
+function register(e) {
+    e.preventDefault();
+    let xhr = new XMLHttpRequest();
+    username = document.getElementById('username').value;
+    password = document.getElementById('password').value;
+    if (username === "" || password === "") {
+            handleErrorMessage()
+            return;
+        }
+    xhr.open('POST', 'server.php', true);
+    xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+    xhr.onload = function () {
+            if (this.status === 200) {
+                    let redirectTo = this.responseText
+                    window.location.href = redirectTo;
+                }
+        }
+    // Encode the data as URL-encoded format
+    var data = 'username=' + encodeURIComponent(username) +
+    '&password=' + encodeURIComponent(password) +
+    '&action=register';
+    xhr.send(data);
+}
+\end{lstlisting}
+
+
+In der \emph{server.php} wird dann die Methode \emph{AddNewUser} ausgeführt und es wird überprüft, ob der Benutzername bereits vergeben ist oder nicht. Falls der Benutzername bereits existiert, wird dem Benutzer eine entsprechende Fehlermeldung angezeigt. Wenn der Benutzername noch nicht in der Datenbank vorhanden ist, wird das Passwort entschlüsselt und der Benutzer in der Datenbank angelegt. Anschließend wird der Benutzer zur Loginseite weitergeleitet.
+
+\begin{lstlisting}[language=PHP, caption=Methode für die Estellung eines neues Benutzers]
+    // method used to register a new user
+function addNewUser($username, $password, $conn)
+{
+    // check if the username already exists
+    $sql = "SELECT * FROM users WHERE name = '$username'";
+    $result = mysqli_query($conn, $sql);
+
+    if (mysqli_num_rows($result) > 0) {
+        echo 'register.php?error=Benutzername existiert bereits';
+        exit();
+    }
+
+    global $redis;
+    $redis->set('isUsersChanged', 'true');
+
+    // encrypt password
+    $pass = md5($password);
+
+    // add a new use into the user table
+    $sql = "INSERT INTO users (name, password) VALUES ('$username', '$pass')";
+    $result = mysqli_query($conn, $sql);
+    echo 'index.php';
+}
+\end{lstlisting}
+
+\subsection{Dashboard von Benutzer}
+
+Auf dem Dashboard kann der Benutzer folgende Aktionen ausführen:
+\begin{itemize}
+    \item \textbf{Abmelden}: Durch Auswahl dieser Option wird die aktuelle Sitzung des Benutzers beendet und er wird zur Login-Seite weitergeleitet.
+    \item \textbf{Neue Aufgabe erstellen:} Der Benutzer kann eine neue Aufgabe erstellen und Details wie Titel, Beschreibung, Fälligkeitsdatum usw. angeben.
+    \item \textbf{Vorhandene Aufgaben bearbeiten:} Der Benutzer kann bereits erstellte Aufgaben bearbeiten, um Änderungen an Titel, Beschreibung, Fälligkeitsdatum oder anderen Informationen vorzunehmen.
+    \item \textbf{Aufgabe als erledigt markieren:} Der Benutzer kann eine Aufgabe als erledigt markieren, um den Fortschritt zu verfolgen und den Status der Aufgabe zu aktualisieren.
+\end{itemize}
+
+Durch Auswahl der Option "Abmelden" wird die aktuelle Sitzung des Benutzers beendet und er wird zur Login-Seite weitergeleitet.
+
+\begin{lstlisting}[language=PHP, caption=Php script für die Abmeldung]
+<?php
+session_start();
+
+session_unset();
+session_destroy();
+
+header('Location: index.php');
+?>
+\end{lstlisting}
+
+Wenn ein Benutzer eine neue Aufgabe erstellen möchte, wird er auf die Seite \emph{new\char`_task.php} weitergeleitet. Dort kann er die Daten für die Aufgabe eingeben und anschließend auf \emph{Speichern} klicken. Eine Validierung findet statt, um sicherzustellen, dass alle Felder ordnungsgemäß ausgefüllt wurden. Wenn eine Eingabe nicht gültig ist, erhält der Benutzer eine entsprechende Fehlermeldung. Wenn alles in Ordnung ist, erhält der Benutzer eine Bestätigungsmeldung und wird zurück zum Dashboard weitergeleitet.
+
+\begin{lstlisting}[language=PHP, caption=Methode für die Erstellung einer neuen Aufgabe]
+function addNewTask($title, $description, $assignTo, $priority, $start, $end, $conn)
+{
+    $createBy = $_SESSION['username'];
+    $sql = "INSERT INTO tasks (title, description, assignedTo, startdate, enddate, priority, createBy, status) VALUES ('$title', '$description', '$assignTo', '$start', '$end', '$priority', '$createBy', 'begin')";
+    $result = mysqli_query($conn, $sql);
+
+    //  update the redis cache for notifying a database change
+    global $redis;
+    $redis->set('isTasksChanged', 'true');
+    if ($result)
+        echo 'success';
+};
+\end{lstlisting}
+
+Die Bearbeitung einer Aufgabe erfolgt auf der Seite \emph{edit\char`_task.php}, auf der alle aktuellen Aufgabendaten geladen werden. Der Benutzer kann dann die Daten anpassen. Beim Klicken auf \emph{Speichern} erfolgt erneut eine Validierung, und der Prozess ist ähnlich wie bei der Erstellung einer neuen Aufgabe.
+
+\begin{lstlisting}[language=PHP, caption=Methode für das Update einer neuen Aufgabe]
+function editTask($title, $description, $assignTo, $priority, $start, $end, $conn)
+{
+    $id = $_POST['id'];
+    $sql = "UPDATE tasks SET title = '$title', description = '$description', assignedTo = '$assignTo', startdate = '$start', enddate = '$end', priority = '$priority' WHERE id = '$id'";
+    $result = mysqli_query($conn, $sql);
+
+    //  update the redis cache for notifying a database change
+    global $redis;
+    $redis->set('isTasksChanged', 'true');
+    if ($result)
+        echo 'success';
+}
+\end{lstlisting}
+
+Um eine Aufgabe als erledigt zu markieren, kann der Benutzer auf eine Checkbox klicken. Nachdem das Dashboard geladen wurde, wird für jede Checkbox ein changeEventListener hinzugefügt. Dieser EventListener löst eine Ajax-Anfrage an die Datei "server.php" aus und führt dann die Löschmethode aus.
+
+\begin{lstlisting}[language=Javascript, caption=Ajax Request für die Markierung einer Aufgabe als fertig]
+function doneTask(e) {
+    let xhr = new XMLHttpRequest();
+
+    // extracting the task id from the data-id attribut
+    let id = e.target.getAttribute('data-id');
+    xhr.open('POST', 'server.php', true);
+    xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+
+    xhr.onload = function () {
+        if (this.status === 200) {
+            console.log(this.responseText);
+            if (this.responseText === 'success') {
+                window.location.href = 'dashboard.php';
+            }
+        }
+    }
+
+    // Encode the data as URL-encoded format
+    var data = 'id=' + encodeURIComponent(id) +
+        '&action=delete';
+
+    // send the request
+    xhr.send(data);
+}
+    \end{lstlisting}
+
+
+\begin{lstlisting}[language=PHP, caption=Methode für die Estellung eines neues Benutzers]
+        // method used to register a new user
+    function addNewUser($username, $password, $conn)
+    {
+        // check if the username already exists
+        $sql = "SELECT * FROM users WHERE name = '$username'";
+        $result = mysqli_query($conn, $sql);
+    
+        if (mysqli_num_rows($result) > 0) {
+            echo 'register.php?error=Benutzername existiert bereits';
+            exit();
+        }
+    
+        global $redis;
+        $redis->set('isUsersChanged', 'true');
+    
+        // encrypt password
+        $pass = md5($password);
+    
+        // add a new use into the user table
+        $sql = "INSERT INTO users (name, password) VALUES ('$username', '$pass')";
+        $result = mysqli_query($conn, $sql);
+        echo 'index.php';
+    }
+\end{lstlisting}
+
+
+\begin{lstlisting}[language=PHP, caption=Methode die Erledigung einer Aufgabe]
+function deleteTask($conn)
+{
+    $id = $_POST['id'];
+    $sql = "UPDATE tasks SET status = 'done' WHERE id = '$id'";
+    $result = mysqli_query($conn, $sql);
+
+    //  update the redis cache for notifying a database change
+    global $redis;
+    $redis->set('isTasksChanged', 'true');
+    if ($result)
+        echo 'success';
+}
+\end{lstlisting}
+
+\subsection{Caching mit Redis}
+
+Dank der Verwendung von Redis als Cache konnte die Leistung der Anwendung verbessert werden, da häufig abgerufene Daten nicht mehr aus der MySQL-Datenbank, sondern aus dem schnelleren Redis-Cache stammen.
+
+Bei der Erstellung und Bearbeitung einer Aufgabe wird eine Liste der bisherigen Benutzer angezeigt, um die Aufgabe einem Benutzer zuzuweisen. Bei jedem Öffnen dieser Liste wird normalerweise eine Abfrage an die Datenbank gestellt. Mit Redis wird diese Liste jedoch direkt aus dem Redis-Cache abgerufen. Eine Abfrage an die Hauptdatenbank erfolgt nur, wenn sich ein neuer Benutzer registriert hat (wodurch der Wert des 'isUserChanged'-Schlüssels im Redis-Cache auf 'true' gesetzt wird). Dadurch bleibt der Redis-Cache immer auf demselben Stand wie die Hauptdatenbank.
+
+\subsubsection*{\centering Erstellung und Bearbeitung einer Aufgabe}
+Während der Erstellung und Bearbeitung einer Aufgabe wird eine Liste der bisherigen Benutzer angezeigt, um die Aufgabe einem Benutzer zuzuweisen\cite{FRANCISNDUNGU2023}. Normalerweise würde bei jedem Öffnen dieser Liste eine Abfrage an die Datenbank gestellt. Durch die Verwendung von Redis wird diese Liste jedoch direkt aus dem Redis-Cache abgerufen. Eine Abfrage an die Hauptdatenbank erfolgt nur dann, wenn sich ein neuer Benutzer registriert hat (wodurch der Wert des \emph{isUserChanged}-Schlüssels im Redis-Cache auf 'true' gesetzt wird). Auf diese Weise bleibt der Redis-Cache immer auf demselben Stand wie die Hauptdatenbank, und eine Datenbankabfrage wird nur dann durchgeführt, wenn tatsächliche Änderungen an den Benutzertabelle vorliegen.
+
+\begin{lstlisting}[language=PHP, caption=Caching von Benutzerdaten in redis]
+<?php
+include 'config/database.php';
+$users = array();
+$key = 'users';
+$res = $redis->get('isUsersChanged');
+if (!$redis->get($key) or $res == 'true') {
+    $sql = "SELECT name FROM users";
+    $result = mysqli_query($conn, $sql);
+    while ($row = mysqli_fetch_assoc($result)) {
+        $users[] = $row;
+    }
+    $redis->set($key, serialize($users));
+    $redis->set('isUsersChanged', 'false');
+} else {
+    $users = unserialize($redis->get($key));
+}
+
+foreach ($users as $user) {
+    echo "<option>" . $user['name'] . "</option>";
+}
+?>
+\end{lstlisting}
+
+\subsubsection*{Darstellung der Dashboards}
+Für die Anzeige der Liste aller Aufgaben wird ebenfalls der Redis-Cache verwendet. Eine Abfrage an die Hauptdatenbank erfolgt nur dann, wenn sich ein Benutzer einloggt oder eine neue Aufgabe erstellt wird. Die Aufgabenliste wird regelmäßig im Redis-Cache aktualisiert und kann somit schnell aus dem Cache abgerufen werden. Dies trägt zur Verbesserung der Leistung bei, da Abfragen an die Hauptdatenbank nur bei tatsächlichen Änderungen oder Aktualisierungen der Aufgabenliste erfolgen. Dadurch wird der Datenbankverkehr reduziert und die Anwendung reagiert schneller auf Benutzeraktionen.\cite{Radfelder2023}
+
+\begin{lstlisting}[language=PHP, caption=Caching von Aufgabendaten in redis]
+<?php
+include 'config/database.php';
+
+$username = $_SESSION['username'];
+$tasks = array();
+$key =  'tasks';
+global $redis;
+$res = $redis->get('isTasksChanged');
+
+if (!$redis->get($key) or $res == 'true') {
+    $sql = "SELECT * FROM tasks WHERE status = 'begin' AND (assignedTo = '$username' OR createBy = '$username')  ";
+    $result = mysqli_query($conn, $sql);
+    while ($row = mysqli_fetch_assoc($result)) {
+        $tasks[] = $row;
+    }
+    $redis->set($key, serialize($tasks));
+    $us = unserialize($redis->get($key));
+    $redis->set('isTasksChanged', 'false');
+} else {
+    $tasks = unserialize($redis->get($key));
+}
+\end{lstlisting}
