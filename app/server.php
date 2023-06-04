@@ -96,6 +96,8 @@ function addNewTask($title, $description, $assignTo, $priority, $start, $end, $c
     $createBy = $_SESSION['username'];
     $sql = "INSERT INTO tasks (title, description, assignedTo, startdate, enddate, priority, createBy, status) VALUES ('$title', '$description', '$assignTo', '$start', '$end', '$priority', '$createBy', 'begin')";
     $result = mysqli_query($conn, $sql);
+
+    //  update the redis cache for notifying a database change
     global $redis;
     $redis->set('isTasksChanged', 'true');
     if ($result)
@@ -107,6 +109,8 @@ function editTask($title, $description, $assignTo, $priority, $start, $end, $con
     $id = $_POST['id'];
     $sql = "UPDATE tasks SET title = '$title', description = '$description', assignedTo = '$assignTo', startdate = '$start', enddate = '$end', priority = '$priority' WHERE id = '$id'";
     $result = mysqli_query($conn, $sql);
+
+    //  update the redis cache for notifying a database change
     global $redis;
     $redis->set('isTasksChanged', 'true');
     if ($result)
