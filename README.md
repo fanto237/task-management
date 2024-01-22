@@ -47,6 +47,8 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
 
 ### Getting Started
 - You can now go ahead and clone the project by running: `git clone https://github.com/fantosama/task-management.git`
+- rename ***sample.env*** in ***.env***: `mv sample.env .env`
+- edit the ***.env*** with your own value
 - And then either run: `./start.sh` or `docker-compose -up`
 
 
