@@ -54,7 +54,7 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
 
 ## Usage
 
-The app allows following actions:
+The app allows following actions :
 - *create an account*
 - *login with existing account*
 - *add new task*
