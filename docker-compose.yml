@@ -12,7 +12,7 @@ services:
       - ./conf/log.conf:/usr/local/etc/php-fpm.d/zz-log.conf:ro
       - ./conf/php.ini:/usr/local/etc/php/php.init:ro
     networks:
-      - code-network
+      - task
     restart: unless-stopped
     depends_on:
       - db
@@ -26,7 +26,7 @@ services:
       - ./app:/code
       - ./conf/default.conf:/etc/nginx/conf.d/default.conf
     networks:
-      - code-network
+      - task
     depends_on:
       - php
 
@@ -40,14 +40,14 @@ services:
     volumes:
       - ../databases/infrastruktur:/var/lib/mysql
     networks:
-      - code-network
+      - task
 
   redis:
     image: redis
     container_name: redis
     restart: unless-stopped
     networks:
-      - code-network
+      - task
     volumes:
       - ./app/redis-data:/data
 
@@ -58,10 +58,10 @@ services:
     ports:
       - ${ADMINER}:8080
     networks:
-      - code-network
+      - task
     depends_on:
       - db
 
 networks:
-  code-network:
+  task:
     driver: bridge
